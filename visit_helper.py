@@ -4,26 +4,27 @@ def hide(plot_num):
     SetActivePlots(plot_num)
     HideActivePlots()
 
-    
-def save(fname):
+
+def save(fname, outdir="C:\\visit"):
     # save file
     SaveWindowAtts = SaveWindowAttributes()
-    SaveWindowAtts.outputDirectory = "C:\\visit"
+    SaveWindowAtts.outputDirectory = outdir
     SaveWindowAtts.fileName = fname
     SaveWindowAtts.family = 0
     SaveWindowAtts.format = SaveWindowAtts.PNG  # BMP, CURVE, JPEG, OBJ, PNG, POSTSCRIPT, POVRAY, PPM, RGB, STL, TIFF, ULTRA, VTK, PLY, EXR
     SaveWindowAtts.width = 1024
     SaveWindowAtts.height = 1024
-    
+
     SetSaveWindowAttributes(SaveWindowAtts)
     SaveWindow()
-    
-def prep_geometry():
+
+
+def prep_geometry(geom_path):
     """ load and transform stl file """
     print("Reading geometry")
     # open geometry file
-    OpenDatabase("localhost:M:\\isis_models\\TS2\\chipir\\stl_test\\AJC-000074_stripped.stl", 0)
-    
+    OpenDatabase(geom_path, 0)
+
     # transform and scale geometry
     AddPlot("Mesh", "STL_mesh", 1, 1)
     AddOperator("Transform", 1)
@@ -42,23 +43,23 @@ def prep_geometry():
     TransformAtts.doTranslate = 1
     TransformAtts.translateX = -50
     TransformAtts.translateY = 700
-    TransformAtts.translateZ = 0 
+    TransformAtts.translateZ = 0
     SetOperatorOptions(TransformAtts, 0, 1)
 
-    
+
 def load_data(fname):
    print("Reading data")
    # open the silo file
    OpenDatabase(fname, 0)
 
-   
+
 def make_normed_data(name, norm_fac, tnum):
     """ """
     # create the normalised dose rate
     exp_string = str(tnum)+"_mean_000*"+str(norm_fac)
     DefineScalarExpression(name, exp_string)
-    
-    
+
+
 def add_pseudo(min, max, name):
     """ """
     # add pseudocolor plot
@@ -71,9 +72,9 @@ def add_pseudo(min, max, name):
     PseudocolorAtts.maxFlag = 1
     PseudocolorAtts.max = max
     SetPlotOptions(PseudocolorAtts)
-    
-    
-def add_contour(name):
+
+
+def add_contour(name, con_vals=(3, 10, 100)):
     # add contour plot
     AddPlot("Contour", name, 1, 0)
     SetActivePlots(2)
@@ -81,17 +82,17 @@ def add_contour(name):
     ContourAtts.SetMultiColor(0, (255, 0, 0, 255))
     ContourAtts.SetMultiColor(1, (255, 0, 255, 255))
     ContourAtts.SetMultiColor(2, (0, 0, 255, 255))
-    ContourAtts.contourValue = (1, 10, 100)
+    ContourAtts.contourValue = con_vals
     ContourAtts.contourMethod = ContourAtts.Value  # Level, Value, Percent
     SetPlotOptions(ContourAtts)
 
-    
+
 def add_slice(axis, intercept):
     # slice geometry
     AddOperator("Slice", 1)
     set_slice(axis, intercept)
-    
-    
+
+
 def set_slice(axis, intercept):
     SliceAtts = SliceAttributes()
     SliceAtts.originType = SliceAtts.Intercept  # Point, Intercept, Percent, Zone, Node
@@ -111,8 +112,8 @@ def set_slice(axis, intercept):
         SliceAtts.upAxis = (0, 0, 1)
     SliceAtts.meshName = "ADVANTG_mesh"
     SetOperatorOptions(SliceAtts, 0, 1)
-    
-    
+
+
 def tidy_general_annotations():
     """ """
     # set general annotations remove user name and filename
@@ -122,19 +123,19 @@ def tidy_general_annotations():
     AnnotationAtts.timeInfoFlag = 0
     AnnotationAtts.legendInfoFlag = 1
     SetAnnotationAttributes(AnnotationAtts)
-    
+
     # sort out scale labels
     names = GetAnnotationObjectNames()
     for i in names:
         ref = GetAnnotationObject(i)
         ref.drawMinMax = 0
         ref.drawTitle = 0
-    
-    # Add title to pseudo color 
+
+    # Add title to pseudo color
     ref = GetAnnotationObject(names[1])
     ref.drawTitle = 1
 
-    
+
 def set_view(axis):
     """ """
     # set the view
@@ -143,4 +144,4 @@ def set_view(axis):
         View2DAtts.windowCoords = (0.0, 3000.0, -100.0, 2000.0)
     elif axis == 'y':
         View2DAtts.windowCoords = (0.0, 2500.0, -300.0, 400.0)
-    SetView2D(View2DAtts) 
+    SetView2D(View2DAtts)
