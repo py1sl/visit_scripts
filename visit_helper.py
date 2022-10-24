@@ -1,68 +1,28 @@
 
+from visit import *
+import glob
 
 def hide(plot_num):
+    """ hide a plot """
     SetActivePlots(plot_num)
     HideActivePlots()
 
 
-def save(fname, outdir="C:\\visit"):
-    # save file
-    SaveWindowAtts = SaveWindowAttributes()
-    SaveWindowAtts.outputDirectory = outdir
-    SaveWindowAtts.fileName = fname
-    SaveWindowAtts.family = 0
-    SaveWindowAtts.format = SaveWindowAtts.PNG  # BMP, CURVE, JPEG, OBJ, PNG, POSTSCRIPT, POVRAY, PPM, RGB, STL, TIFF, ULTRA, VTK, PLY, EXR
-    SaveWindowAtts.width = 1024
-    SaveWindowAtts.height = 1024
-
-    SetSaveWindowAttributes(SaveWindowAtts)
-    SaveWindow()
-
-
-def prep_geometry(geom_path):
-    """ load and transform stl file """
-    print("Reading geometry")
-    # open geometry file
-    OpenDatabase(geom_path, 0)
-
-    # transform and scale geometry
-    AddPlot("Mesh", "STL_mesh", 1, 1)
-    AddOperator("Transform", 1)
-    SetActivePlots(0)
-    TransformAtts = TransformAttributes()
-    TransformAtts.doRotate = 1
-    TransformAtts.rotateOrigin = (0, 0, 0)
-    TransformAtts.rotateAxis = (0, 0, 1)
-    TransformAtts.rotateAmount = -44
-    TransformAtts.rotateType = TransformAtts.Deg  # Deg, Rad
-    TransformAtts.doScale = 1
-    TransformAtts.scaleOrigin = (0, 0, 0)
-    TransformAtts.scaleX = 0.1
-    TransformAtts.scaleY = 0.1
-    TransformAtts.scaleZ = 0.1
-    TransformAtts.doTranslate = 1
-    TransformAtts.translateX = -50
-    TransformAtts.translateY = 700
-    TransformAtts.translateZ = 0
-    SetOperatorOptions(TransformAtts, 0, 1)
-
-
 def load_data(fname):
-   print("Reading data")
-   # open the silo file
-   OpenDatabase(fname, 0)
+    """ lod a database """
+    print("Reading data")
+    # open the silo file
+    OpenDatabase(fname, 0)
 
 
 def make_normed_data(name, norm_fac, tnum):
-    """ """
-    # create the normalised dose rate
+    """ create the normalised data """
     exp_string = str(tnum)+"_mean_000*"+str(norm_fac)
     DefineScalarExpression(name, exp_string)
 
 
 def add_pseudo(min, max, name):
-    """ """
-    # add pseudocolor plot
+    """ add a pseudocolor plot """
     AddPlot("Pseudocolor", name, 1, 0)
     SetActivePlots(1)
     PseudocolorAtts = PseudocolorAttributes()
@@ -75,7 +35,7 @@ def add_pseudo(min, max, name):
 
 
 def add_contour(name, con_vals=(3, 10, 100)):
-    # add contour plot
+    """ add a contour plot """
     AddPlot("Contour", name, 1, 0)
     SetActivePlots(2)
     ContourAtts = ContourAttributes()
@@ -88,12 +48,13 @@ def add_contour(name, con_vals=(3, 10, 100)):
 
 
 def add_slice(axis, intercept):
-    # slice geometry
+    """ add slice operator """
     AddOperator("Slice", 1)
     set_slice(axis, intercept)
 
 
 def set_slice(axis, intercept):
+    """ set slce attributes, can be used to change slice once added """
     SliceAtts = SliceAttributes()
     SliceAtts.originType = SliceAtts.Intercept  # Point, Intercept, Percent, Zone, Node
     SliceAtts.originPoint = (0, 0, 0)
@@ -115,7 +76,7 @@ def set_slice(axis, intercept):
 
 
 def tidy_general_annotations():
-    """ """
+    """ remove the visit specific annotations"""
     # set general annotations remove user name and filename
     AnnotationAtts = AnnotationAttributes()
     AnnotationAtts.userInfoFlag = 0
@@ -136,12 +97,63 @@ def tidy_general_annotations():
     ref.drawTitle = 1
 
 
-def set_view(axis):
-    """ """
+def set_view(co_ords):
+    """  set the 2d view window """
     # set the view
     View2DAtts = View2DAttributes()
-    if axis == 'z':
-        View2DAtts.windowCoords = (0.0, 3000.0, -100.0, 2000.0)
-    elif axis == 'y':
-        View2DAtts.windowCoords = (0.0, 2500.0, -300.0, 400.0)
+    View2DAtts.windowCoords = co_ords
     SetView2D(View2DAtts)
+
+
+def save(fname):
+    """ save image """
+    SaveWindowAtts = SaveWindowAttributes()
+    SaveWindowAtts.outputDirectory = "."
+    SaveWindowAtts.fileName = fname
+    SaveWindowAtts.family = 0
+    SaveWindowAtts.format = SaveWindowAtts.PNG  # BMP, CURVE, JPEG, OBJ, PNG, POSTSCRIPT, POVRAY, PPM, RGB, STL, TIFF, ULTRA, VTK, PLY, EXR
+    SaveWindowAtts.width = 1024
+    SaveWindowAtts.height = 1024
+    
+    SetSaveWindowAttributes(SaveWindowAtts)
+    SaveWindow()
+
+   
+def read_all_ply_files(ply_path):
+    """ read all ply files in a folder """
+    print("Reading geometry ply files")
+    print(ply_path)
+    flist = glob.glob(ply_path)
+    print(len(flist))
+    
+    open_ply_files(flist)
+
+    
+def read_ply_file_from_list(ply_path, cell_list):
+    """ read all ply files from folder matching cell numbers in a list """
+    print("Reading geometry ply files")
+    print(ply_path)
+    flist = glob.glob(ply_path)
+    print(len(flist))
+    ply_list = []
+    
+    cell_list = list(set(cell_list))
+    for num in cell_list:
+        cpath = ply_path[:-1] + str(num) + ".ply"
+        if cpath in flist:
+            ply_list.append(cpath)
+        else:
+            print(num, "Not found")
+    
+    open_ply_files(ply_list)
+
+    
+def open_ply_files(flist):
+    """ open 3d ply models """ 
+    for f in flist:
+        OpenDatabase(f, 0)
+        AddPlot("Mesh", "PLY_mesh", 1, 1)
+        MeshAtts = MeshAttributes()
+        MeshAtts.legendFlag = 0
+        SetPlotOptions(MeshAtts)
+    print("finished loading ply files")
