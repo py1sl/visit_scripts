@@ -157,3 +157,37 @@ def open_ply_files(flist):
         MeshAtts.legendFlag = 0
         SetPlotOptions(MeshAtts)
     print("finished loading ply files")
+    
+    
+def combine_meshes(file1_data, file2_data, norm_fac, exp_name="combined_dose"):
+    """ create a combined mesh variable 
+        e.g. for combining phton and neutron dose rate meshes
+        filex_data should be a list with the path and tally number
+    """
+    load_data(file1_data[0])
+    load_data(file2_data[0])
+    
+    tnum2 = file2_data[1]
+    name2 = str(tnum2) + "_norm"
+    make_normed_data(name2, norm_fac, tnum2)
+    
+    ActivateDatabase(file1_data[0])
+    
+    tnum1 = file1_data[1]
+    name1 = str(tnum1) + "_norm"
+    make_normed_data(name1, norm_fac, tnum1)
+    
+    
+    expression_str = "(pos_cmfe(<"+file2_data[0]+":"+name2+">, <ADVANTG_mesh>, 0.000000)+" + name1 +")"
+    DefineScalarExpression(exp_name, expression_str)
+
+    
+def read_stl(path):
+    """ read an stl file """
+    OpenDatabase(path, 0)
+    AddPlot("Mesh", "STL_mesh", 1, 1)
+    MeshAtts = MeshAttributes()
+    MeshAtts.legendFlag = 0
+    SetPlotOptions(MeshAtts)
+    print("finished loading Stl files")    
+    
