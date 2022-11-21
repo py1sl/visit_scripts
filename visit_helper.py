@@ -21,12 +21,13 @@ def make_normed_data(name, norm_fac, tnum):
     DefineScalarExpression(name, exp_string)
 
 
-def add_pseudo(min, max, name):
+def add_pseudo(min, max, name, log=True):
     """ add a pseudocolor plot """
     AddPlot("Pseudocolor", name, 1, 0)
-    SetActivePlots(1)
+    # SetActivePlots(1)
     PseudocolorAtts = PseudocolorAttributes()
-    PseudocolorAtts.scaling = PseudocolorAtts.Log  # Linear, Log, Skew
+    if log: 
+        PseudocolorAtts.scaling = PseudocolorAtts.Log  # Linear, Log, Skew
     PseudocolorAtts.minFlag = 1
     PseudocolorAtts.min = min
     PseudocolorAtts.maxFlag = 1
@@ -34,10 +35,10 @@ def add_pseudo(min, max, name):
     SetPlotOptions(PseudocolorAtts)
 
 
-def add_contour(name, con_vals=(3, 10, 100)):
+def add_contour(name, con_vals=(1.5, 10, 100)):
     """ add a contour plot """
     AddPlot("Contour", name, 1, 0)
-    SetActivePlots(2)
+    # SetActivePlots(2)
     ContourAtts = ContourAttributes()
     ContourAtts.SetMultiColor(0, (255, 0, 0, 255))
     ContourAtts.SetMultiColor(1, (255, 0, 255, 255))
@@ -51,6 +52,16 @@ def add_slice(axis, intercept):
     """ add slice operator """
     AddOperator("Slice", 1)
     set_slice(axis, intercept)
+
+
+def add_off_axs_slice(origin, normal):
+    """ adds an off axis slice """
+    AddOperator("Slice", 1)
+    SliceAtts = SliceAttributes()
+    SliceAtts.originPoint = origin
+    SliceAtts.normal = normal
+    SliceAtts.meshName = "ADVANTG_mesh"
+    SetOperatorOptions(SliceAtts, 0, 1)
 
 
 def set_slice(axis, intercept):
