@@ -9,8 +9,8 @@ def hide(plot_num):
 
 
 def load_data(fname):
-    """ lod a database """
-    print("Reading data")
+    """ load a database """
+    print(f"Reading data from {fname}")
     # open the silo file
     OpenDatabase(fname, 0)
 
@@ -65,7 +65,7 @@ def add_off_axs_slice(origin, normal):
 
 
 def set_slice(axis, intercept):
-    """ set slce attributes, can be used to change slice once added """
+    """ set slice attributes, can be used to change slice once added """
     SliceAtts = SliceAttributes()
     SliceAtts.originType = SliceAtts.Intercept  # Point, Intercept, Percent, Zone, Node
     SliceAtts.originPoint = (0, 0, 0)
@@ -132,20 +132,19 @@ def save(fname):
    
 def read_all_ply_files(ply_path):
     """ read all ply files in a folder """
-    print("Reading geometry ply files")
-    print(ply_path)
+    print(f"Reading all geometry ply files from:")
+    print(f"{ply_path}")
     flist = glob.glob(ply_path)
-    print(len(flist))
+    print(f" Total number of ply files to read is {len(flist)}")
     
     open_ply_files(flist)
 
     
 def read_ply_file_from_list(ply_path, cell_list):
     """ read all ply files from folder matching cell numbers in a list """
-    print("Reading geometry ply files")
-    print(ply_path)
+    print(f"Reading selected geometry ply files from:")
+    print(f"{ply_path}")
     flist = glob.glob(ply_path)
-    print(len(flist))
     ply_list = []
     
     cell_list = list(set(cell_list))
@@ -167,12 +166,12 @@ def open_ply_files(flist):
         MeshAtts = MeshAttributes()
         MeshAtts.legendFlag = 0
         SetPlotOptions(MeshAtts)
-    print("finished loading ply files")
+    print(f"finished loading ply files")
     
     
 def combine_meshes(file1_data, file2_data, norm_fac, exp_name="combined_dose"):
     """ create a combined mesh variable 
-        e.g. for combining phton and neutron dose rate meshes
+        e.g. for combining photon and neutron dose rate meshes
         filex_data should be a list with the path and tally number
     """
     load_data(file1_data[0])
@@ -200,5 +199,5 @@ def read_stl(path):
     MeshAtts = MeshAttributes()
     MeshAtts.legendFlag = 0
     SetPlotOptions(MeshAtts)
-    print("finished loading Stl files")    
+    print(f"finished loading Stl file from {path}")    
     
