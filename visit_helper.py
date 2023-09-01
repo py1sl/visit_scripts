@@ -54,17 +54,17 @@ def add_slice(axis, intercept):
     set_slice(axis, intercept)
 
 
-def add_off_axs_slice(origin, normal):
+def add_off_axs_slice(origin, normal, mesh="ADVANTG_mesh"):
     """ adds an off axis slice """
     AddOperator("Slice", 1)
     SliceAtts = SliceAttributes()
     SliceAtts.originPoint = origin
     SliceAtts.normal = normal
-    SliceAtts.meshName = "ADVANTG_mesh"
+    SliceAtts.meshName = mesh
     SetOperatorOptions(SliceAtts, 0, 1)
 
 
-def set_slice(axis, intercept):
+def set_slice(axis, intercept, mesh="ADVANTG_mesh"):
     """ set slice attributes, can be used to change slice once added """
     SliceAtts = SliceAttributes()
     SliceAtts.originType = SliceAtts.Intercept  # Point, Intercept, Percent, Zone, Node
@@ -82,7 +82,7 @@ def set_slice(axis, intercept):
         SliceAtts.normal = (1, 0, 0)
         SliceAtts.axisType = SliceAtts.XAxis  # XAxis, YAxis, ZAxis, Arbitrary, ThetaPhi
         SliceAtts.upAxis = (0, 0, 1)
-    SliceAtts.meshName = "ADVANTG_mesh"
+    SliceAtts.meshName = mesh
     SetOperatorOptions(SliceAtts, 0, 1)
 
 
@@ -169,7 +169,7 @@ def open_ply_files(flist):
     print(f"finished loading ply files")
     
     
-def combine_meshes(file1_data, file2_data, norm_fac, exp_name="combined_dose"):
+def combine_meshes(file1_data, file2_data, norm_fac, mesh="ADVANTG_mesh", exp_name="combined_dose"):
     """ create a combined mesh variable 
         e.g. for combining photon and neutron dose rate meshes
         filex_data should be a list with the path and tally number
@@ -188,7 +188,7 @@ def combine_meshes(file1_data, file2_data, norm_fac, exp_name="combined_dose"):
     make_normed_data(name1, norm_fac, tnum1)
     
     
-    expression_str = "(pos_cmfe(<"+file2_data[0]+":"+name2+">, <ADVANTG_mesh>, 0.000000)+" + name1 +")"
+    expression_str = "(pos_cmfe(<"+file2_data[0]+":"+name2+">, <"+mesh+">, 0.000000)+" + name1 +")"
     DefineScalarExpression(exp_name, expression_str)
 
     
